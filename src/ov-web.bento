@@ -1,0 +1,342 @@
+/**  ov-web.bento
+ *
+ *   Open Voyage web site.
+ *
+ *
+ **/
+
+site open_voyage [=
+
+    /-------- global values -----------------------/
+
+    global User_Table(utbl{}){} = utbl
+
+    /-------- initialization ----------------------/
+
+    init [=
+        load_users("users");
+    =]
+    
+    session_init [=
+    =]
+
+    load_users(filename) [=
+        file user_file = file(filename)
+        table_loader(str){} = table.parse(str)
+        
+        
+        log("looking for user file " + user_file.canonical_path);
+        
+        if (!user_file.exists) [=
+            log("user file not found; aborting");
+            redirect error("User file " + filename + " not found.")
+
+        =] else [=
+            eval(User_Table(table_loader(user_file.contents)));
+        =]
+        
+        if (!User_Table) [=
+            redirect error("Invalid user file " + filename + ".")
+        =]
+        
+        log("initialized user table");
+        for u in User_Table.keys [=
+            log("  ...user: " + u);
+        =]
+    =]
+    
+    /-------- error handling ----------------------/
+
+    component error(msg) [=
+        component_class = "error_msg"
+        message = msg
+        
+        "Error: ";
+        msg;
+    =]
+
+
+    /-------- login status and information --------/
+
+    this_username(u) = u
+
+    boolean logged_in(boolean flag) = flag
+
+    dynamic boolean authenticate(username, password) [=
+        if (User_Table{username} == password) [=
+            eval(this_username(username));
+            true;
+        =] else [=
+            false;
+        =]
+    =]
+
+    boolean assented(boolean flag) = flag
+
+    dynamic assent(username) [=
+        /-- TODO: log assent --/    
+    =]
+
+    /-------- parameter constants ----------------/
+    
+    USERNAME_PARAM = "user"
+    PASSWORD_PARAM = "pass"
+    ASSENT_PARAM = "assent"
+
+    /-------- styles and appearance constants -----/
+
+    SPLASH_LOGO = "images/open_voyage-612x48.png"
+    HEADER_LOGO = "images/open_voyage-408x32.png"
+
+    color main_bgcolor = "#3093D9"
+
+    /-------- information for user ----------------/
+    
+    ASSENT_TEXT = "This site contains confidential and proprietary information belonging to Open " +
+                  "Voyage.  Open Voyage does not authorize the use or disclosure of this information " +
+                  "without the permission of Open Voyage.  To continue to the site, please acknowledge " +
+                  "that you understand these restrictions by clicking on the I Understand button."
+    
+    REFUSED_TEXT = "Please visit us after our public release!"
+
+
+    /-------- base page ---------------------------/
+
+    page(*) base_page(params{}) [=
+        boolean ajax_enabled = true
+    
+        boolean needs_login [?]    
+        boolean needs_assent [?]
+        
+        style [| 
+            html, body { 
+                width: 100%;
+                height: 100%;
+                margin: 0 0 0 0;
+                background-color: [= main_bgcolor; =];
+            }
+
+            .centered_container {
+                width: 100%;
+                height: 100%;
+                margin: 0 0 0 0;
+                position: relative;
+            }
+            
+            .centered_high_box {
+                position: absolute;
+                left: 50%;
+                top: 38%;
+                margin-right: -50%;
+                transform: translate(-50%, -50%);
+                width: 36em;
+            }
+            
+            .centered_div  {
+                width: 100%;
+                text-align: center;
+             }
+            
+            .centered_div table {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .centered_div td {
+                padding: 0.125em 0.5em;
+            }
+            
+            .centered_div div {
+                padding: 0.75em 4em;
+            }
+            
+            .header_bar {
+                width: 100%;
+                padding: 0.25em 0.5em;
+            }
+            
+           .labeled_edit {
+                text-align: center;
+                font-weight: bold;
+                padding:0.5em;
+            }
+
+            #splash_image_holder img {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            #login_splash_box {
+                color: white;
+                font-size: 1em;
+                font-weight: bold;
+                font-family: "Arial", sans-serif;
+            }
+            
+            #login_button {
+                width: 10em;
+            }
+            
+            #ok_button {
+                width: 10em;
+            }
+
+            #cancel_button {
+                width: 10em;
+            }
+
+            #assent_splash_box {
+                color: #FFCCDD;
+                font-size: 1em;
+                font-weight: bold;
+                font-family: "Arial", sans-serif;
+                padding: 2em;
+            }
+            
+            .gatekeeper {
+            }
+        |]        
+        
+        component splash_image_holder(img_url) [=
+            id = "splash_image_holder"
+            [| <img src="[= img_url; =]"> |]
+        =]
+        
+        dynamic component login_splash_box [=
+            id = "login_splash_box"
+            component_class = "centered_container"
+            
+            [| <div class="centered_high_box"> |]
+            splash_image_holder(SPLASH_LOGO);
+            login_component(page_name);
+            [| </div> |]
+        =]
+        
+        dynamic component assent_splash_box [=
+            id = "assent_splash_box"
+            component_class = "centered_container"
+            
+            [| <div class="centered_high_box"> |]
+            splash_image_holder(SPLASH_LOGO);
+            assent_component(page_name);
+            [| </div> |]
+        =]
+        
+        component header_bar [=
+            component_class = "header_bar"
+            
+            [| <img src="[= HEADER_LOGO; =]"> |]
+        =]
+        
+        base_page this_page = owner
+        page_name = owner.type
+
+        if (needs_login && !logged_in) [=
+            log("needs login");
+            login_splash_box;
+
+        =] else if (needs_assent && !assented) [=
+            log("needs assent");
+            assent_splash_box;
+            
+        =] else [=
+            log("we're good");
+            header_bar;
+            sub;
+        =]    
+    
+    =]
+
+    /-------- login mechanics ---------------------/
+
+    component gatekeeper_component [=
+        component_class = "gatekeeper"
+    =]
+
+    dynamic gatekeeper_component login_component(params{}),(page_name) [=
+        goto_page = page_name ? page_name : goto_param
+        goto_param [= with (params) [= params{"goto"}; =] else [| index |] =]
+        component this_component = owner
+        field_ids[] = [ USERNAME_PARAM, PASSWORD_PARAM ]
+        submit_params{} = { "goto": goto_page } 
+        
+        
+        log(" login component params: " + params);
+        log(" login submit params: " + submit_params);
+        
+        if (params{USERNAME_PARAM}) [=
+            log("trying to authenticate " + params{USERNAME_PARAM});
+            eval(logged_in(: authenticate(params{USERNAME_PARAM}, params{PASSWORD_PARAM}) :)); 
+        =]
+        if (logged_in) [=
+            log("logged in, redirecting to " + goto_page);
+            redirect [[ goto_page ]]
+
+        =] else [=
+            [| <div class="centered_div"><table><tr> |]
+            if (params{USERNAME_PARAM}) [|
+                <td colspan="2" style="background-color: white; color: red; text-align: center;">Login unsuccessful.  Try again.</td>
+            |] else [|
+                <td colospan="2">&nbsp;</td>
+            |]
+            [| </tr><tr><td><table><tr><td>Username:</td><td> |]
+            textedit(USERNAME_PARAM, this_username, 20);
+            [| </td></tr><tr><td>Password:</td><td> |]
+            passwordedit(PASSWORD_PARAM, "", 20);
+            [| </td></tr></table> |]
+            [| </td><td> |]
+            submit_button("login", "Login", "/" + this_component.id, field_ids, submit_params);
+            [| </td></tr></table></div> |]
+        =]
+        
+    =]    
+
+    dynamic gatekeeper_component assent_component(page_name),(params{}) [=
+        goto_page = page_name ? page_name : params{"goto"}
+        component this_component = owner
+
+        log("assent_component params: " + params);
+        if (params{ASSENT_PARAM} == "false") [=
+            [| <div class="centered_div"> |]
+            REFUSED_TEXT;
+            [| </div> |]
+        =] else [=              
+            if (params{ASSENT_PARAM} == "true") [=
+                eval(assented(: true :)); 
+            =]
+            
+            if (assented) [=
+                redirect [[ goto_page ]]
+            =] else [=
+                [| <div class="centered_div"><div> |]
+                ASSENT_TEXT;
+                [| </div><div> |]
+                request_button("ok", "I Understand", "/" + this_component.id, ASSENT_PARAM, "true");
+                [| &nbsp; |]
+                request_button("cancel", "Cancel", "/" + this_component.id, ASSENT_PARAM, "false");
+                [| </div></div> |]
+            =]
+        =]
+    =]    
+
+
+    /-------- home page ---------------------------/
+
+    base_page(*) index(params{}) [=
+        boolean needs_login = true    
+        boolean needs_assent = true    
+    
+    =]
+
+    /-------- error page --------------------------/
+    page error_page(request r) [=
+        boolean needs_login = false    
+        boolean needs_assent = false    
+        title = [| Error |]
+        color bgcolor = "#AAEEDD"
+
+        error_div(r);        
+    =]    
+
+=]

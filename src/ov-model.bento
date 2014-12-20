@@ -1,0 +1,23 @@
+/**  ov-model.bento
+ *
+ *   Open Voyage domain model.
+ *
+ *
+ **/
+
+site open_voyage [=
+
+    /** A voyage consists of a trip along with two sets of related
+     *  data: a collection of research_item objects, generated during
+     *  the planning stages, and a journal, which is created as the
+     *  trip progresses.
+     **/
+    serializable(*) voyage(str) [=
+        keep: trip this_trip [/]
+        keep: journal this_journal [/]
+        keep: research_item[] research_items = []
+    =]
+
+
+
+=]
