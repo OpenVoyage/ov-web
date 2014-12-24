@@ -18,6 +18,20 @@ site open_voyage [=
         keep: research_item[] research_items = []
     =]
 
+    trip_component [/]
+    
+    trip_component destination [=
+        keep: name [?]
+        keep: location this_location [?]
+    =]
 
+    trip_component transit [=
+        name = start.name + "-to-" + end.name
+        
+        destination start [?]
+        destination end [?]
+    =]   
+    
+    
 
 =]
