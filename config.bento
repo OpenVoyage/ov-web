@@ -64,7 +64,7 @@
 
     site_config open_voyage_config [=
         name = "open_voyage"
-        bentopath = "src"
+        bentopath = "src:bento_modules/three/src"
         filepath = "."
     =]    
 

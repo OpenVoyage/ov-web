@@ -17,21 +17,53 @@ site open_voyage [=
         keep: journal this_journal [/]
         keep: research_item[] research_items = []
     =]
-
-    trip_component [/]
     
-    trip_component destination [=
+    trip [=
+        stage[] stages = []
+    =]
+
+    stage [/]
+    
+    stage stop [=
         keep: name [?]
         keep: location this_location [?]
     =]
 
-    trip_component transit [=
-        name = start.name + "-to-" + end.name
+    stage leg [=
+        dynamic name = start.name + "-to-" + end.name
         
-        destination start [?]
-        destination end [?]
+        stop start [?]
+        stop end [?]
     =]   
+
+    stop destination(nm, location loc) [=
+        name = nm
+        location this_location = loc
+    =]
     
+    /** home depends on the existence of home_name and home_location,
+     *  defined elsewhere.
+     **/ 
+    destination home [=
+        name = home_name
+        location this_location = home_location
+    =]
+
+
+    location [=
     
+    =]    
+
+    journal [=
+        entry[] entries = []
+    =]    
+
+    entry [=
+        keep: date entry_date [?] 
+    =]
+    
+    research_item [=
+        keep: src [?]
+    =]
 
 =]

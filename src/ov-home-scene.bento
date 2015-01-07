@@ -1,0 +1,54 @@
+/**  ov-home-scene.bento
+ *
+ *   Home page 3D scene for Open Voyage.
+ *
+ *
+ **/
+
+site open_voyage [=
+
+    adopt three
+
+    /---------------------/
+    /----  the scene  ----/
+
+    scene home_scene [=
+    
+        perspective_camera scene_cam [=
+            position pos = position(0, 10, 100)
+            name = "scene_camera"
+
+            far(10000);
+            [|
+                [= name; =].target = new THREE.Vector3( 0, 10, -100 );
+            |]
+            sub;
+        =]
+    
+        camera cam = scene_cam
+
+        phong_material earth_material [=
+            undecorated color = 0xFFFFFF
+        =]
+        
+        sphere_geometry(100, 32, 32) earth_geometry [/]
+        
+        mesh(sphere_geometry(50, 32, 32) /-- earth_geometry --/, earth_material) earth [=
+            position pos = position(0, -40, 0)
+        =]
+
+        point_light(0xAAAAAA) soft_light [=
+            position pos = position(10, 100, 40)
+        =]
+
+        three_object[] objs = [
+            earth,
+            soft_light
+        ]
+        
+        next_frame [=
+            earth.rotate(0, 0.002, 0);
+        =]
+    =]
+
+=]

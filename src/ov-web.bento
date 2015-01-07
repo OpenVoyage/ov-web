@@ -7,6 +7,8 @@
 
 site open_voyage [=
 
+    adopt three
+
     /-------- global values -----------------------/
 
     global User_Table(utbl{}){} = utbl
@@ -153,6 +155,12 @@ site open_voyage [=
             .header_bar {
                 width: 100%;
                 padding: 0.25em 0.5em;
+            }
+
+            .header_bar img {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
             }
             
            .labeled_edit {
@@ -324,10 +332,53 @@ site open_voyage [=
     /-------- home page ---------------------------/
 
     base_page(*) index(params{}) [=
-        boolean needs_login = true    
-        boolean needs_assent = true    
+        boolean needs_login = false // for now    
+        boolean needs_assent = false // for now    
+
+        /--------------------/
+        /---- the canvas ----/
     
+        three_component(*) tc(scene s),(params{}) [=
+            style  [| position: absolute; top: 0; left: 0;
+                      width: 100%; height: 100%; 
+                      margin: 0; padding: 0;
+                      z-index: 0;
+                   |]
+
+            canvas_id = "tc"
+        =]        
+
+        [|
+           <div style="position: absolute; top: 25%;
+                       margin-left: auto; margin-right: auto;
+                       width: 100%; padding: 12px;
+                       text-align: center;
+                       color: #FFEE99;
+                       z-index: 100;" >
+               <h2>where do you want to go?</h2>
+           </div>
+        |] 
+
+        tc(home_scene);
     =]
+    
+    /---- pseudofiles ----/
+
+    js [=
+        lib [=
+            three [=
+                js [=
+                    include_file("../../3p/lib/three.js");
+                =]
+            =]
+            stats [=
+                js [=
+                    include_file("../../3p/lib/stats.min.js");
+                =]
+            =]
+        =]
+    =]
+
 
     /-------- error page --------------------------/
     page error_page(request r) [=
