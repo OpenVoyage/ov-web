@@ -29,21 +29,22 @@ site open_voyage [=
 
         phong_material earth_material [=
             undecorated color = 0xFFFFFF
+            
         =]
         
         sphere_geometry(100, 32, 32) earth_geometry [/]
         
-        mesh(sphere_geometry(50, 32, 32) /-- earth_geometry --/, earth_material) earth [=
+        mesh(sphere_geometry(50, 64, 32) /-- earth_geometry --/, earth_material) earth [=
             position pos = position(0, -40, 0)
         =]
 
-        point_light(0xAAAAAA) soft_light [=
+        point_light(0xFFFFEE) bright_yellow_light [=
             position pos = position(10, 100, 40)
         =]
 
         three_object[] objs = [
             earth,
-            soft_light
+            bright_yellow_light
         ]
         
         next_frame [=

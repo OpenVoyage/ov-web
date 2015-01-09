@@ -204,6 +204,16 @@ site open_voyage [=
             
             .gatekeeper {
             }
+            
+            #tc_container {
+                width: 100%;
+                height: 100%;
+            }
+            
+            #tc {
+                width: 100%;
+                height: 100%;
+            }
         |]        
         
         component splash_image_holder(img_url) [=
@@ -340,22 +350,25 @@ site open_voyage [=
     
         three_component(*) tc(scene s),(params{}) [=
             style  [| position: absolute; top: 0; left: 0;
-                      width: 100%; height: 100%; 
+                      width: 100%; height: 100%;
+                      min-width: 640px;
+                      min-height: 320px; 
                       margin: 0; padding: 0;
                       z-index: 0;
                    |]
 
             canvas_id = "tc"
+            boolean size_to_window = true;
         =]        
 
         [|
-           <div style="position: absolute; top: 25%;
+           <div style="position: absolute; top: 23%;
                        margin-left: auto; margin-right: auto;
-                       width: 100%; padding: 12px;
+                       width: 100%;
                        text-align: center;
                        color: #FFEE99;
                        z-index: 100;" >
-               <h2>where do you want to go?</h2>
+               <h2>Where do you want to go?</h2>
            </div>
         |] 
 
