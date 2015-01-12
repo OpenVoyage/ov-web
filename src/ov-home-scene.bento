@@ -15,12 +15,12 @@ site open_voyage [=
     scene home_scene [=
     
         perspective_camera scene_cam [=
-            position pos = position(0, 10, 100)
+            position pos = position(0, 10, 500)
             name = "scene_camera"
 
             far(10000);
             [|
-                [= name; =].target = new THREE.Vector3( 0, 10, -100 );
+                [= name; =].target = new THREE.Vector3( 0, 10, -500 );
             |]
             sub;
         =]
@@ -29,26 +29,35 @@ site open_voyage [=
 
         phong_material earth_material [=
             undecorated color = 0xFFFFFF
-            
+            undecorated map = load_texture("images/land_ocean_ice_cloud_2048.jpg");
         =]
         
         sphere_geometry(100, 32, 32) earth_geometry [/]
         
-        mesh(sphere_geometry(50, 64, 32) /-- earth_geometry --/, earth_material) earth [=
-            position pos = position(0, -40, 0)
+        mesh(sphere_geometry(250, 64, 32) /-- earth_geometry --/, earth_material) earth [=
+        =]
+        
+        three_object earth_frame [=
+            position pos = position(0, -150, 0)
+            earth;
+            add(earth);
+            set_rotation(0, 0, 0.41); 
         =]
 
-        point_light(0xFFFFEE) bright_yellow_light [=
-            position pos = position(10, 100, 40)
+        directional_light(0xFFFFF7) sun_light [=
+            position pos = position(1000, 1000, 1000)
         =]
+        
+        ambient_light(0x333333) dim_ambient_light [/] 
 
         three_object[] objs = [
-            earth,
-            bright_yellow_light
+            earth_frame,
+            sun_light,
+            dim_ambient_light
         ]
         
         next_frame [=
-            earth.rotate(0, 0.002, 0);
+            earth.rotate(0, 0.00025, 0);
         =]
     =]
 

@@ -17,6 +17,8 @@ site open_voyage [=
 
     init [=
         load_users("users");
+        three.set_logging_level(three.LOG_DEBUG);
+        three.init;
     =]
     
     session_init [=
@@ -79,11 +81,17 @@ site open_voyage [=
         /-- TODO: log assent --/    
     =]
 
+    /-------- session status ---------------------/
+
+    this_destination(dest) = dest
+
+
     /-------- parameter constants ----------------/
     
     USERNAME_PARAM = "user"
     PASSWORD_PARAM = "pass"
     ASSENT_PARAM = "assent"
+    DESTINATION_PARAM = "dest"
 
     /-------- styles and appearance constants -----/
 
@@ -116,6 +124,7 @@ site open_voyage [=
                 height: 100%;
                 margin: 0 0 0 0;
                 background-color: [= main_bgcolor; =];
+                font-family: "Arial", sans-serif;
             }
 
             .centered_container {
@@ -154,7 +163,7 @@ site open_voyage [=
             
             .header_bar {
                 width: 100%;
-                padding: 0.25em 0.5em;
+                padding: 0.75em 0;
             }
 
             .header_bar img {
@@ -213,6 +222,12 @@ site open_voyage [=
             #tc {
                 width: 100%;
                 height: 100%;
+            }
+            
+            #destination_box input {
+                color: black;
+                font-size: 1.125em;
+                background-color: #EEFFFF;
             }
         |]        
         
@@ -352,7 +367,7 @@ site open_voyage [=
             style  [| position: absolute; top: 0; left: 0;
                       width: 100%; height: 100%;
                       min-width: 640px;
-                      min-height: 320px; 
+                      min-height: 640px; 
                       margin: 0; padding: 0;
                       z-index: 0;
                    |]
@@ -362,13 +377,20 @@ site open_voyage [=
         =]        
 
         [|
-           <div style="position: absolute; top: 23%;
+           <div style="position: absolute; top: 10%;
                        margin-left: auto; margin-right: auto;
                        width: 100%;
                        text-align: center;
-                       color: #FFEE99;
+                       color: #FFFFFF;
                        z-index: 100;" >
                <h2>Where do you want to go?</h2>
+               <div id="destination_box">
+        |]
+        
+        textedit(DESTINATION_PARAM, this_destination, 32);
+
+        [|               
+               </div>
            </div>
         |] 
 
