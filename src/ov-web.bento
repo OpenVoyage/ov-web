@@ -403,7 +403,7 @@ site open_voyage [=
         lib [=
             three [=
                 js [=
-                    include_file("../../3p/lib/three.js");
+                    include_file("lib/three.js");
                 =]
             =]
             stats [=
