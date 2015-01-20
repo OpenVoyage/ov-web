@@ -12,6 +12,7 @@ site open_voyage [=
     /-------- global values -----------------------/
 
     global User_Table(utbl{}){} = utbl
+    global Admin_User_Table{} = { admin: true }
 
     /-------- initialization ----------------------/
 
@@ -68,7 +69,15 @@ site open_voyage [=
 
     dynamic boolean authenticate(username, password) [=
         if (User_Table{username} == password) [=
-            eval(this_username(username));
+            eval(this_username(: username :));
+            true;
+        =] else [=
+            false;
+        =]
+    =]
+
+    dynamic boolean authenticate_admin(username) [=
+        if (Admin_User_Table{username}) [=
             true;
         =] else [=
             false;
@@ -85,18 +94,21 @@ site open_voyage [=
 
     this_destination(dest) = dest
 
+    /-------- log file ---------------------------/
+
+    static LOG_FILE = "/var/log/ov.log"
 
     /-------- parameter constants ----------------/
     
-    USERNAME_PARAM = "user"
-    PASSWORD_PARAM = "pass"
-    ASSENT_PARAM = "assent"
-    DESTINATION_PARAM = "dest"
+    static USERNAME_PARAM = "user"
+    static PASSWORD_PARAM = "pass"
+    static ASSENT_PARAM = "assent"
+    static DESTINATION_PARAM = "dest"
 
     /-------- styles and appearance constants -----/
 
-    SPLASH_LOGO = "images/open_voyage-612x48.png"
-    HEADER_LOGO = "images/open_voyage-408x32.png"
+    static SPLASH_LOGO = "images/open_voyage-612x48.png"
+    static HEADER_LOGO = "images/open_voyage-408x32.png"
 
     color main_bgcolor = "#3093D9"
 
@@ -117,6 +129,7 @@ site open_voyage [=
     
         boolean needs_login [?]    
         boolean needs_assent [?]
+        boolean needs_admin = false
         
         style [| 
             html, body { 
@@ -265,6 +278,7 @@ site open_voyage [=
         base_page this_page = owner
         page_name = owner.type
 
+        log("constructing base_page, this_username is " + this_username);
         if (needs_login && !logged_in) [=
             log("needs login");
             login_splash_box;
@@ -273,11 +287,15 @@ site open_voyage [=
             log("needs assent");
             assent_splash_box;
             
-        =] else [=
+        =] else if (!needs_admin || authenticate_admin(this_username)) [=
             log("we're good");
             header_bar;
             sub;
-        =]    
+
+        =] else [=
+            log("access to " + page_name + " by " + this_username + " denied");
+            "fail";
+        =]   
     
     =]
 
@@ -397,6 +415,17 @@ site open_voyage [=
         tc(home_scene);
     =]
     
+    base_page show_logs [=
+        boolean needs_login = true
+        boolean needs_assent = false
+        boolean needs_admin = true
+
+        [| <h3>ov log</h3><pre> |]
+        include_file(LOG_FILE);
+        [| </pre> |]
+    =]
+
+
     /---- pseudofiles ----/
 
     js [=
