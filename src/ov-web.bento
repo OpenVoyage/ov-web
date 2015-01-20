@@ -357,7 +357,7 @@ site open_voyage [=
     /-------- home page ---------------------------/
 
     base_page(*) index(params{}) [=
-        boolean needs_login = false // for now    
+        boolean needs_login = true    
         boolean needs_assent = false // for now    
 
         /--------------------/
