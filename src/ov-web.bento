@@ -17,7 +17,7 @@ site open_voyage [=
 
     init [=
         load_users("users");
-        three.set_logging_level(three.LOG_DEBUG);
+        three.set_logging_level(three.LOG_INFO);
         three.init;
     =]
     
